@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from fastapi_storages import FileSystemStorage
 from pydantic import Field, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -33,7 +34,12 @@ class Settings(BaseSettings):
     )
 
     trace_id_header: str = 'X-Trace-Id'
-    jwt_key: SecretStr = Field(default=SecretStr('551b8ef09b5e43ddcc45461f854a89b83b9277c6e578f750bf5a6bc3f06d8c08'))
+    jwt_key: SecretStr = Field(default=SecretStr(
+        '551b8ef09b5e43ddcc45461f854a89b83b9277c6e578f750bf5a6bc3f06d8c08'))
+
+    @property
+    def storage(self):
+        return FileSystemStorage(path="uploads/")
 
 
 @lru_cache
