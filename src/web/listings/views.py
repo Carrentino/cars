@@ -13,7 +13,7 @@ from src.web.listings.schemas import CreateCarReq, CreateCarResp
 listings_router = APIRouter()
 
 
-@listings_router.post('/listing/')
+@listings_router.post('/')
 async def create_car(
     car_service: Annotated[CarService, Depends(get_car_service)],
     user_context: Annotated[UserContext, Depends(get_current_user)],
