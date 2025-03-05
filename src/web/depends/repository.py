@@ -6,11 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.repositories.car import CarRepository
 from src.repositories.car_attachment import CarAttachmentRepository
+from src.repositories.car_model import CarModelRepository
 from src.repositories.car_option import CarOptionRepository
 
 
-async def get_car_repository(
-    session: Annotated[AsyncSession, Depends(get_db_session)]) -> CarRepository:
+async def get_car_repository(session: Annotated[AsyncSession, Depends(get_db_session)]) -> CarRepository:
     return CarRepository(session)
 
 
@@ -20,7 +20,9 @@ async def get_car_attachment_repository(
     return CarAttachmentRepository(session)
 
 
-async def get_car_option_repository(
-    session: Annotated[AsyncSession, Depends(get_db_session)]
-) -> CarOptionRepository:
+async def get_car_option_repository(session: Annotated[AsyncSession, Depends(get_db_session)]) -> CarOptionRepository:
     return CarOptionRepository(session)
+
+
+async def get_car_model_repository(session: Annotated[AsyncSession, Depends(get_db_session)]) -> CarModelRepository:
+    return CarModelRepository(session)

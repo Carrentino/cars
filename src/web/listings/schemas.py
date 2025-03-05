@@ -1,5 +1,4 @@
 from datetime import datetime
-from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -9,15 +8,15 @@ class CarOption(BaseModel):
 
 
 class CreateCarReq(BaseModel):
-    car_model_id: UUID
+    car_model_id: str
     color: str
     price: int
     latitude: str
     longitude: str
     date_from: datetime | None = None
     date_to: datetime | None = None
-    options: list[CarOption]
+    options: list[CarOption] = []
 
 
-class CreateCarResp(BaseModel):
-    id: UUID
+class CarResp(BaseModel):
+    id: str

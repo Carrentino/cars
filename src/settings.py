@@ -30,12 +30,11 @@ class Settings(BaseSettings):
         default='postgresql+asyncpg://postgres:postgres@localhost:5432/base'
     )
     test_postgres_dsn: PostgresDsn = Field(  # type: ignore
-        default='postgresql+asyncpg://postgres:@localhost:5432/base_test'
+        default='postgresql+asyncpg://postgres:@localhost:5432/carrentino_cars_test'
     )
 
     trace_id_header: str = 'X-Trace-Id'
-    jwt_key: SecretStr = Field(default=SecretStr(
-        '551b8ef09b5e43ddcc45461f854a89b83b9277c6e578f750bf5a6bc3f06d8c08'))
+    jwt_key: SecretStr = Field(default=SecretStr('551b8ef09b5e43ddcc45461f854a89b83b9277c6e578f750bf5a6bc3f06d8c08'))
 
     @property
     def storage(self):

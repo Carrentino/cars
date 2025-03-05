@@ -1,14 +1,21 @@
 from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile
 from helpers.depends.auth import get_current_user
 from helpers.models.user import UserContext
 
-from src.errors.http import UserIsNotVerifiedHttpError
-from src.errors.service import UserIsNotVerifiedError
+from src.errors.http import (
+    UserIsNotVerifiedHttpError,
+    CarNotFoundHttpError,
+    UserIsNotOwnerHttpError,
+    CarModelNotFoundHttpError,
+)
+from src.errors.service import UserIsNotVerifiedError, CarNotFoundError, UserIsNotOwnerError, CarModelNotFoundError
 from src.services.car import CarService
-from src.web.depends.service import get_car_service
-from src.web.listings.schemas import CreateCarReq, CreateCarResp
+from src.services.car_attachment import CarAttachmentService
+from src.web.depends.service import get_car_service, get_car_attachment_service
+from src.web.listings.schemas import CreateCarReq, CarResp
 
 listings_router = APIRouter()
 
@@ -18,10 +25,27 @@ async def create_car(
     car_service: Annotated[CarService, Depends(get_car_service)],
     user_context: Annotated[UserContext, Depends(get_current_user)],
     req_data: CreateCarReq,
-    attachments: list[UploadFile] = File(...),
-) -> CreateCarResp:
+) -> CarResp:
     try:
-        car_id = await car_service.create_car(user_context, req_data, attachments)
-        return CreateCarResp(id=car_id)
+        car_id = await car_service.create_car(user_context, req_data)
+        return CarResp(id=str(car_id))
     except UserIsNotVerifiedError:
         raise UserIsNotVerifiedHttpError from None
+    except CarModelNotFoundError:
+        raise CarModelNotFoundHttpError from None
+
+
+@listings_router.post('/{car_id}/add-attachments')
+async def add_attachment_to_listing(
+    car_attachment_service: Annotated[CarAttachmentService, Depends(get_car_attachment_service)],
+    user_context: Annotated[UserContext, Depends(get_current_user)],
+    attachments: list[UploadFile],
+    car_id: str,
+) -> CarResp:
+    try:
+        await car_attachment_service.add_attachments(user_context, UUID(car_id), attachments)
+        return CarResp(id=str(car_id))
+    except UserIsNotOwnerError:
+        raise UserIsNotOwnerHttpError from None
+    except CarNotFoundError:
+        raise CarNotFoundHttpError from None
