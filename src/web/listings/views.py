@@ -24,4 +24,4 @@ async def create_car(
         car_id = await car_service.create_car(user_context, req_data, attachments)
         return CreateCarResp(id=car_id)
     except UserIsNotVerifiedError:
-        raise UserIsNotVerifiedHttpError
+        raise UserIsNotVerifiedHttpError from None
