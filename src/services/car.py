@@ -1,3 +1,4 @@
+from typing import ClassVar
 from uuid import UUID
 
 from helpers.models.user import UserContext, UserStatus
@@ -13,6 +14,12 @@ from src.web.listings.schemas import CreateCarReq, CarFilters, BrandSchema, CarM
 
 
 class CarService:
+    prefix_model: ClassVar = {
+        'car__': Car,
+        'car_model__': CarModel,
+        'brand__': Brand,
+    }
+
     def __init__(
         self,
         car_repository: CarRepository,
@@ -46,54 +53,26 @@ class CarService:
 
     async def get_cars(self, filters: CarFilters):
         conditions = []
-        if filters.car_id:
-            if ',' in filters.car_id:
-                conditions.append(Car.id.in_([UUID(item) for item in filters.car_id.split(',')]))
+        for filter_name, value in filters.dict().items():
+            if value is None or filter_name in ('limit', 'offset'):
+                continue
+            parts = filter_name.split('__')
+            attr_name = parts[1]
+            for prefix, model in self.prefix_model.items():
+                if filter_name.startswith(prefix):
+                    field = getattr(model, attr_name)
+                    break
             else:
-                conditions.append(Car.id == UUID(filters.car_id))
-        if filters.color:
-            if ',' in filters.color:
-                conditions.append(Car.color.in_(filters.color.split(',')))
-            else:
-                conditions.append(Car.color == filters.color)
-        if filters.car_model__title:
-            if ',' in filters.car_model__title:
-                conditions.append(CarModel.title.in_(filters.car_model__title.split(',')))
-            else:
-                conditions.append(CarModel.title == filters.car_model__title)
-        if filters.brand__title:
-            if ',' in filters.brand__title:
-                conditions.append(Brand.title.in_(filters.brand__title.split(',')))
-            else:
-                conditions.append(Brand.title == filters.brand__title)
-        if filters.price__gte is not None:
-            conditions.append(Car.price >= filters.price__gte)
-        if filters.price__lte is not None:
-            conditions.append(Car.price <= filters.price__lte)
-        if filters.score__gte is not None:
-            conditions.append(Car.score >= filters.score__gte)
-        if filters.score__lte is not None:
-            conditions.append(Car.score <= filters.score__lte)
-        if filters.date_from__gte is not None:
-            conditions.append(Car.date_from >= filters.date_from__gte)
-        if filters.date_from__lte is not None:
-            conditions.append(Car.date_from <= filters.date_from__lte)
-        if filters.date_to__gte is not None:
-            conditions.append(Car.date_to >= filters.date_to__gte)
-        if filters.date_to__lte is not None:
-            conditions.append(Car.date_to <= filters.date_to__lte)
-        if filters.car_model__hp__gte is not None:
-            conditions.append(CarModel.hp >= filters.car_model__hp__gte)
-        if filters.car_model__hp__lte is not None:
-            conditions.append(CarModel.hp <= filters.car_model__hp__lte)
-        if filters.car_model__engine_capacity__gte is not None:
-            conditions.append(CarModel.engine_capacity >= filters.car_model__engine_capacity__gte)
-        if filters.car_model__engine_capacity__lte is not None:
-            conditions.append(CarModel.engine_capacity <= filters.car_model__engine_capacity__lte)
-        if filters.car_model__fuel_consumption__gte is not None:
-            conditions.append(CarModel.fuel_consumption >= filters.car_model__fuel_consumption__gte)
-        if filters.car_model__fuel_consumption__lte is not None:
-            conditions.append(CarModel.fuel_consumption <= filters.car_model__fuel_consumption__lte)
+                field = None
+            if field is not None:
+                if isinstance(value, list):
+                    conditions.append(field.in_(value))
+                elif parts[-1] == 'gte':
+                    conditions.append(field >= value)
+                elif parts[-1] == 'lte':
+                    conditions.append(field <= value)
+                else:
+                    conditions.append(field == value)
         result, count = await self.car_repository.get_cars(conditions, filters.limit, filters.offset)
         clean_result = []
         for item in result:

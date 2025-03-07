@@ -9,7 +9,7 @@ async def test_get_cars(client: AsyncClient) -> None:
     await CarFactory.create(status=CarStatus.VERIFIED, color="black")
     await CarFactory.create(status=CarStatus.VERIFIED, color="black")
     await CarFactory.create(status=CarStatus.VERIFIED, color="white")
-    response = await client.get('/api/listings/?limit=1&color=black')
+    response = await client.get('/api/listings/?limit=1&car__color=black')
     assert response.status_code == status.HTTP_200_OK
     json_resp = response.json()
     assert len(json_resp['data']) == 1

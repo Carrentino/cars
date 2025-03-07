@@ -2,7 +2,8 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel
+from fastapi.params import Query
+from pydantic import BaseModel, Field
 
 from src.db.enums.car import CarStatus
 from src.db.enums.car_model import CarModelFuel, CarModelGearbox, CarModelDrive, CarModelBody
@@ -28,20 +29,20 @@ class CarResp(BaseModel):
 
 
 class CarFilters(BaseModel):
-    car_id: str | None = None
-    color: str | None = None
-    car_model__title: str | None = None
-    brand__title: str | None = None
+    car__id: list[UUID] | None = Field(Query(None))
+    car__color: list[str] | None = Field(Query(None))
+    car_model__title: list[str] | None = Field(Query(None))
+    brand__title: list[str] | None = Field(Query(None))
 
-    price__gte: int | None = None
-    price__lte: int | None = None
-    score__gte: Decimal | None = None
-    score__lte: Decimal | None = None
+    car__price__gte: int | None = None
+    car__price__lte: int | None = None
+    car__score__gte: Decimal | None = None
+    car__score__lte: Decimal | None = None
 
-    date_from__gte: datetime | None = None
-    date_from__lte: datetime | None = None
-    date_to__gte: datetime | None = None
-    date_to__lte: datetime | None = None
+    car__date_from__gte: datetime | None = None
+    car__date_from__lte: datetime | None = None
+    car__date_to__gte: datetime | None = None
+    car__date_to__lte: datetime | None = None
 
     car_model__hp__gte: int | None = None
     car_model__hp__lte: int | None = None
