@@ -3,6 +3,7 @@ from decimal import Decimal
 from uuid import UUID
 
 from fastapi.params import Query
+from helpers.models.response import PaginatedResponse
 from pydantic import BaseModel, Field
 
 from src.db.enums.car import CarStatus
@@ -100,3 +101,7 @@ class CarSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class CarPaginatedResponse(PaginatedResponse):
+    data: list[CarSchema]

@@ -17,12 +17,12 @@ from src.errors.service import UserIsNotVerifiedError, CarNotFoundError, UserIsN
 from src.services.car import CarService
 from src.services.car_attachment import CarAttachmentService
 from src.web.depends.service import get_car_service, get_car_attachment_service
-from src.web.listings.schemas import CreateCarReq, CarResp, CarFilters
+from src.web.listings.schemas import CreateCarReq, CarResp, CarFilters, CarPaginatedResponse
 
 listings_router = APIRouter()
 
 
-@listings_router.get('/')
+@listings_router.get('/', response_model=CarPaginatedResponse)
 async def get_cars(
     filters: Annotated[CarFilters, Depends()],
     car_service: Annotated[CarService, Depends(get_car_service)],
