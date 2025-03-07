@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, UploadFile
 from helpers.depends.auth import get_current_user
 from helpers.models.user import UserContext
+from helpers.utils import get_paginated_response
 
 from src.errors.http import (
     UserIsNotVerifiedHttpError,
@@ -25,7 +26,8 @@ async def get_cars(
     filters: Annotated[CarFilters, Depends()],
     car_service: Annotated[CarService, Depends(get_car_service)],
 ):
-    return await car_service.get_cars(filters)
+    cars = await car_service.get_cars(filters)
+    return await get_paginated_response(cars, filters.limit, filters.offset)
 
 
 @listings_router.post('/')

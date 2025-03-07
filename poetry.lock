@@ -1063,7 +1063,7 @@ sqlalchemy = "^2.0.37"
 type = "git"
 url = "git@github.com:Carrentino/helpers.git"
 reference = "main"
-resolved_reference = "d938bdeffc3b43986b76bb7906548a42cf0f0814"
+resolved_reference = "1b11b67586b8d76ec8a2f329c1f9bf59698578cf"
 
 [[package]]
 name = "httpcore"
