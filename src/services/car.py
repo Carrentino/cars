@@ -94,7 +94,7 @@ class CarService:
             conditions.append(CarModel.fuel_consumption >= filters.car_model__fuel_consumption__gte)
         if filters.car_model__fuel_consumption__lte is not None:
             conditions.append(CarModel.fuel_consumption <= filters.car_model__fuel_consumption__lte)
-        result = await self.car_repository.get_cars(conditions, filters.limit, filters.offset)
+        result, count = await self.car_repository.get_cars(conditions, filters.limit, filters.offset)
         clean_result = []
         for item in result:
             brand = BrandSchema(
@@ -133,4 +133,4 @@ class CarService:
                 car_model=car_model,
             )
             clean_result.append(car)
-        return clean_result
+        return clean_result, count

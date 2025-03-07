@@ -26,8 +26,8 @@ async def get_cars(
     filters: Annotated[CarFilters, Depends()],
     car_service: Annotated[CarService, Depends(get_car_service)],
 ):
-    cars = await car_service.get_cars(filters)
-    return await get_paginated_response(cars, filters.limit, filters.offset)
+    cars, count = await car_service.get_cars(filters)
+    return await get_paginated_response(cars, count, filters.limit, filters.offset)
 
 
 @listings_router.post('/')
