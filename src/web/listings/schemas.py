@@ -61,6 +61,9 @@ class BrandSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+    class Config:
+        from_attributes = True
+
 
 class CarModelSchema(BaseModel):
     id: UUID
@@ -75,6 +78,9 @@ class CarModelSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
     brand: BrandSchema
+
+    class Config:
+        from_attributes = True
 
 
 class CarSchema(BaseModel):
@@ -91,3 +97,6 @@ class CarSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
     car_model: CarModelSchema
+
+    class Config:
+        from_attributes = True

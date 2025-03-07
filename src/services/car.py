@@ -76,40 +76,9 @@ class CarService:
         result, count = await self.car_repository.get_cars(conditions, filters.limit, filters.offset)
         clean_result = []
         for item in result:
-            brand = BrandSchema(
-                id=item.car_model.brand.id,
-                title=item.car_model.brand.title,
-                created_at=item.car_model.created_at,
-                updated_at=item.car_model.updated_at,
-            )
-            car_model = CarModelSchema(
-                id=item.car_model.id,
-                title=item.car_model.title,
-                body=item.car_model.body,
-                fuel_consumption=item.car_model.fuel_consumption,
-                engine_capacity=item.car_model.engine_capacity,
-                drive=item.car_model.drive,
-                gearbox=item.car_model.gearbox,
-                fuel=item.car_model.fuel,
-                hp=item.car_model.hp,
-                created_at=item.car_model.created_at,
-                updated_at=item.car_model.updated_at,
-                brand=brand,
-            )
-            car = CarSchema(
-                id=item.id,
-                color=item.color,
-                score=item.score,
-                price=item.price,
-                owner_id=item.owner_id,
-                latitude=item.latitude,
-                longitude=item.longitude,
-                date_from=item.date_from,
-                date_to=item.date_to,
-                status=item.status,
-                created_at=item.created_at,
-                updated_at=item.updated_at,
-                car_model=car_model,
-            )
+            brand = BrandSchema.model_validate(item.car_model.brand)
+            car_model = CarModelSchema.model_validate(item.car_model, context={'brand': brand})
+
+            car = CarSchema.model_validate(item, context={'car_model': car_model})
             clean_result.append(car)
         return clean_result, count
