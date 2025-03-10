@@ -105,3 +105,28 @@ class CarSchema(BaseModel):
 
 class CarPaginatedResponse(PaginatedResponse):
     data: list[CarSchema]
+
+
+class CarAttachmentSchema(BaseModel):
+    id: UUID
+    attachment: str
+
+    class Config:
+        from_attributes = True
+
+
+class CarOptionSchema(BaseModel):
+    id: UUID
+    title: str
+
+    class Config:
+        from_attributes = True
+
+
+class RetrieveCarSchema(CarSchema):
+    attachments: list[CarAttachmentSchema]
+    options: list[CarOptionSchema]
+    reviews: list
+
+    class Config:
+        from_attributes = True

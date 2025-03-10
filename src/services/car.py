@@ -3,14 +3,23 @@ from uuid import UUID
 
 from helpers.models.user import UserContext, UserStatus
 
+from src.db.enums.car import CarStatus
 from src.db.models.brand import Brand
 from src.db.models.car import Car
 from src.db.models.car_model import CarModel
-from src.errors.service import UserIsNotVerifiedError, CarModelNotFoundError
+from src.errors.service import UserIsNotVerifiedError, CarModelNotFoundError, CarNotFoundError
+from src.integrations.reviews import ReviewsClient
 from src.repositories.car import CarRepository
 from src.repositories.car_model import CarModelRepository
 from src.repositories.car_option import CarOptionRepository
-from src.web.listings.schemas import CreateCarReq, CarFilters, BrandSchema, CarModelSchema, CarSchema
+from src.web.api.listings.schemas import (
+    CreateCarReq,
+    CarFilters,
+    BrandSchema,
+    CarModelSchema,
+    CarSchema,
+    RetrieveCarSchema,
+)
 
 
 class CarService:
@@ -25,10 +34,29 @@ class CarService:
         car_repository: CarRepository,
         car_model_repository: CarModelRepository,
         car_option_repository: CarOptionRepository,
+        reviews_client: ReviewsClient,
     ) -> None:
         self.car_model_repository = car_model_repository
         self.car_repository = car_repository
         self.car_option_repository = car_option_repository
+        self.reviews_client = reviews_client
+
+    async def get_current_car(
+        self, car_id: UUID, user: UserContext | None, token: str | None = None
+    ) -> RetrieveCarSchema:
+        car = await self.car_repository.get_car_by_id(car_id)
+        if car is None:
+            raise CarNotFoundError
+        if (user is None and car.status != CarStatus.VERIFIED) or (
+            user is not None and user.user_id != car.owner_id and car.status != CarStatus.VERIFIED
+        ):
+            raise CarNotFoundError
+        reviews = await self.reviews_client.get_reviews(car_id, token)
+        car.reviews = reviews
+        return RetrieveCarSchema.model_validate(
+            car,
+            from_attributes=True,
+        )
 
     async def create_car(self, user: UserContext, req: CreateCarReq) -> UUID:
         if user.status == UserStatus.NOT_VERIFIED:
@@ -46,7 +74,7 @@ class CarService:
             longitude=req.longitude,
             date_from=req.date_from,
             date_to=req.date_to,
-            car_options=options,
+            options=options,
         )
         car_id = await self.car_repository.create(car)
         return car_id

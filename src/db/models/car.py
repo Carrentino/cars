@@ -19,22 +19,19 @@ if TYPE_CHECKING:
 class Car(Base):
     __tablename__ = 'cars'
 
-    car_model_id: Mapped[UUID] = mapped_column(ForeignKey('car_models.id'),
-                                               nullable=False)
+    car_model_id: Mapped[UUID] = mapped_column(ForeignKey('car_models.id'), nullable=False)
     color: Mapped[str]
     score: Mapped[Decimal] = mapped_column(default=5.0)
     price: Mapped[int]
     owner_id: Mapped[UUID]
-    status: Mapped[CarStatus] = mapped_column(Enum(CarStatus),
-                                              default=CarStatus.NOT_VERIFIED)
+    status: Mapped[CarStatus] = mapped_column(Enum(CarStatus), default=CarStatus.NOT_VERIFIED)
     latitude: Mapped[str]
     longitude: Mapped[str]
     date_from: Mapped[datetime] = mapped_column(nullable=True)
     date_to: Mapped[datetime] = mapped_column(nullable=True)
 
     car_model: Mapped["CarModel"] = relationship("CarModel", back_populates="cars")
-    car_options: Mapped[list["CarOption"]] = relationship("CarOption",
-                                                          secondary=car_options_association,
-                                                          back_populates="cars")
-    attachments: Mapped[list["CarAttachment"]] = relationship("CarAttachment",
-                                                              back_populates="car")
+    options: Mapped[list["CarOption"]] = relationship(
+        "CarOption", secondary=car_options_association, back_populates="cars"
+    )
+    attachments: Mapped[list["CarAttachment"]] = relationship("CarAttachment", back_populates="car")

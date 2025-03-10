@@ -2,10 +2,11 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, UploadFile
-from helpers.depends.auth import get_current_user
+from helpers.depends.auth import get_current_user, get_optional_user
 from helpers.models.response import PaginatedResponse
 from helpers.models.user import UserContext
 from helpers.utils import get_paginated_response
+from starlette.requests import Request
 
 from src.errors.http import (
     UserIsNotVerifiedHttpError,
@@ -16,10 +17,23 @@ from src.errors.http import (
 from src.errors.service import UserIsNotVerifiedError, CarNotFoundError, UserIsNotOwnerError, CarModelNotFoundError
 from src.services.car import CarService
 from src.services.car_attachment import CarAttachmentService
+from src.web.api.listings.schemas import CreateCarReq, CarResp, CarFilters, CarPaginatedResponse, RetrieveCarSchema
 from src.web.depends.service import get_car_service, get_car_attachment_service
-from src.web.listings.schemas import CreateCarReq, CarResp, CarFilters, CarPaginatedResponse
 
 listings_router = APIRouter()
+
+
+@listings_router.get('/{car_id}/')
+async def get_current_car(
+    request: Request,
+    car_service: Annotated[CarService, Depends(get_car_service)],
+    user_context: Annotated[UserContext | None, Depends(get_optional_user)],
+    car_id: UUID,
+) -> RetrieveCarSchema:
+    try:
+        return await car_service.get_current_car(car_id, user_context, request.get('x-auth-token'))
+    except CarNotFoundError:
+        raise CarNotFoundHttpError from None
 
 
 @listings_router.get('/', response_model=CarPaginatedResponse)

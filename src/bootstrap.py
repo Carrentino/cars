@@ -14,7 +14,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import PostgresDsn
 
 from src.settings import get_settings
-from src.web.listings.views import listings_router
+from src.web.api.listings.views import listings_router
 
 
 @lru_cache
