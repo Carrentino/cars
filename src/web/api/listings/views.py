@@ -31,7 +31,7 @@ async def get_current_car(
     car_id: UUID,
 ) -> RetrieveCarSchema:
     try:
-        return await car_service.get_current_car(car_id, user_context, request.get('x-auth-token'))
+        return await car_service.get_current_car(car_id, user_context, request.headers.get('x-auth-token'))
     except CarNotFoundError:
         raise CarNotFoundHttpError from None
 
