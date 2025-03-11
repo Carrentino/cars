@@ -74,3 +74,18 @@ async def add_attachment_to_listing(
         raise UserIsNotOwnerHttpError from None
     except CarNotFoundError:
         raise CarNotFoundHttpError from None
+
+
+@listings_router.delete('/{car_id}/')
+async def delete_listing(
+    car_service: Annotated[CarService, Depends(get_car_service)],
+    user_context: Annotated[UserContext, Depends(get_current_user)],
+    car_id: UUID,
+) -> str:
+    try:
+        await car_service.delete_car(UUID(user_context.user_id), car_id)
+    except CarNotFoundError:
+        raise CarNotFoundHttpError from None
+    except UserIsNotOwnerError:
+        raise UserIsNotOwnerHttpError from None
+    return "OK"

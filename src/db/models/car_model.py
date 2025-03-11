@@ -6,8 +6,7 @@ from helpers.sqlalchemy.base_model import Base
 from sqlalchemy import Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.db.enums.car_model import (CarModelDrive, CarModelGearbox, CarModelBody,
-                                    CarModelFuel)
+from src.db.enums.car_model import CarModelDrive, CarModelGearbox, CarModelBody, CarModelFuel
 
 if TYPE_CHECKING:
     from src.db.models.brand import Brand
@@ -18,15 +17,14 @@ class CarModel(Base):
     __tablename__ = 'car_models'
 
     title: Mapped[str]
-    brand_id: Mapped[UUID] = mapped_column(ForeignKey('brands.id'), nullable=False)
+    brand_id: Mapped[UUID] = mapped_column(ForeignKey('brands.id', ondelete='RESTRICT'), nullable=True)
     drive: Mapped[CarModelDrive] = mapped_column(Enum(CarModelDrive), nullable=False)
-    gearbox: Mapped[CarModelGearbox] = mapped_column(Enum(CarModelGearbox),
-                                                     nullable=False)
+    gearbox: Mapped[CarModelGearbox] = mapped_column(Enum(CarModelGearbox), nullable=False)
     body: Mapped[CarModelBody] = mapped_column(Enum(CarModelBody), nullable=False)
     fuel: Mapped[CarModelFuel] = mapped_column(Enum(CarModelFuel), nullable=False)
     fuel_consumption: Mapped[Decimal]
     hp: Mapped[int]
     engine_capacity: Mapped[Decimal]
 
-    brand: Mapped["Brand"] = relationship("Brand", back_populates="car_models")
+    brand: Mapped["Brand"] = relationship("Brand", back_populates="car_models", passive_deletes=True)
     cars: Mapped[list["Car"]] = relationship("Car", back_populates="car_model")

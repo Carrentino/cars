@@ -7,7 +7,7 @@ from src.db.enums.car import CarStatus
 from src.db.models.brand import Brand
 from src.db.models.car import Car
 from src.db.models.car_model import CarModel
-from src.errors.service import UserIsNotVerifiedError, CarModelNotFoundError, CarNotFoundError
+from src.errors.service import UserIsNotVerifiedError, CarModelNotFoundError, CarNotFoundError, UserIsNotOwnerError
 from src.integrations.reviews import ReviewsClient
 from src.repositories.car import CarRepository
 from src.repositories.car_model import CarModelRepository
@@ -110,3 +110,11 @@ class CarService:
             car = CarSchema.model_validate(item, context={'car_model': car_model})
             clean_result.append(car)
         return clean_result, count
+
+    async def delete_car(self, user_id: UUID, car_id: UUID) -> None:
+        car = await self.car_repository.get(car_id)
+        if car is None:
+            raise CarNotFoundError
+        if car.owner_id != user_id:
+            raise UserIsNotOwnerError
+        await self.car_repository.delete(car_id)
