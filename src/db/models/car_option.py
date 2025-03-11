@@ -13,5 +13,4 @@ class CarOption(Base):
     __tablename__ = "car_options"
     title: Mapped[str]
 
-    cars: Mapped[list["Car"]] = relationship("Car", secondary=car_options_association,
-                                             back_populates="car_options")
+    cars: Mapped[list["Car"]] = relationship("Car", secondary=car_options_association, back_populates="options")

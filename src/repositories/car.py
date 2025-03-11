@@ -1,8 +1,9 @@
 from collections.abc import Sequence
+from uuid import UUID
 
 from helpers.sqlalchemy.base_repo import ISqlAlchemyRepository
 from sqlalchemy import select, and_, BinaryExpression, func
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 
 from src.db.models.car import Car
 from src.db.models.car_model import CarModel
@@ -27,3 +28,17 @@ class CarRepository(ISqlAlchemyRepository[Car]):
         count_result = await self.session.execute(count_query)
         total = count_result.scalar()
         return cars, total
+
+    async def get_car_by_id(self, car_id: UUID) -> Car | None:
+        stmt = (
+            select(Car)
+            .options(
+                joinedload(Car.car_model).joinedload(CarModel.brand),
+                selectinload(Car.options),
+                selectinload(Car.attachments),
+            )
+            .where(Car.id == car_id)
+        )
+        result = await self.session.execute(stmt)
+        car = result.unique().scalars().first()
+        return car if car else None
