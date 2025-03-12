@@ -6,6 +6,7 @@ from helpers.depends.auth import get_current_user, get_optional_user
 from helpers.models.response import PaginatedResponse
 from helpers.models.user import UserContext
 from helpers.utils import get_paginated_response
+from starlette import status
 from starlette.requests import Request
 
 from src.errors.http import (
@@ -76,7 +77,7 @@ async def add_attachment_to_listing(
         raise CarNotFoundHttpError from None
 
 
-@listings_router.delete('/{car_id}/')
+@listings_router.delete('/{car_id}/', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_listing(
     car_service: Annotated[CarService, Depends(get_car_service)],
     user_context: Annotated[UserContext, Depends(get_current_user)],
