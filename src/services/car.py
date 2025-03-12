@@ -19,6 +19,7 @@ from src.web.api.listings.schemas import (
     CarModelSchema,
     CarSchema,
     RetrieveCarSchema,
+    UpdateCarSchema,
 )
 
 
@@ -118,3 +119,19 @@ class CarService:
         if car.owner_id != user_id:
             raise UserIsNotOwnerError
         await self.car_repository.delete(car_id)
+
+    async def update_car(self, user_id: UUID, car_id: UUID, req: UpdateCarSchema) -> None:
+        car = await self.car_repository.get(car_id)
+        if car is None:
+            raise CarNotFoundError
+        if car.owner_id != user_id:
+            raise UserIsNotOwnerError
+        update_data = req.model_dump(mode='python')
+        update_data['status'] = CarStatus.NOT_VERIFIED
+        update_data['options'] = [
+            await self.car_option_repository.find_or_create_option(option.title) for option in req.options
+        ]
+        for k, v in update_data.items():
+            if k in car.__dict__:
+                setattr(car, k, v)
+        await self.car_repository.update_object(car)

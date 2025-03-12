@@ -130,3 +130,13 @@ class RetrieveCarSchema(CarSchema):
 
     class Config:
         from_attributes = True
+
+
+class UpdateCarSchema(BaseModel):
+    color: str
+    price: int
+    latitude: str
+    longitude: str
+    date_from: datetime | None = None
+    date_to: datetime | None = None
+    options: list[CarOption]

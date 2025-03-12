@@ -18,7 +18,14 @@ from src.errors.http import (
 from src.errors.service import UserIsNotVerifiedError, CarNotFoundError, UserIsNotOwnerError, CarModelNotFoundError
 from src.services.car import CarService
 from src.services.car_attachment import CarAttachmentService
-from src.web.api.listings.schemas import CreateCarReq, CarResp, CarFilters, CarPaginatedResponse, RetrieveCarSchema
+from src.web.api.listings.schemas import (
+    CreateCarReq,
+    CarResp,
+    CarFilters,
+    CarPaginatedResponse,
+    RetrieveCarSchema,
+    UpdateCarSchema,
+)
 from src.web.depends.service import get_car_service, get_car_attachment_service
 
 listings_router = APIRouter()
@@ -77,16 +84,30 @@ async def add_attachment_to_listing(
         raise CarNotFoundHttpError from None
 
 
+@listings_router.put('/{car_id}/', status_code=status.HTTP_204_NO_CONTENT)
+async def update_listing(
+    car_service: Annotated[CarService, Depends(get_car_service)],
+    user_context: Annotated[UserContext, Depends(get_current_user)],
+    car_id: UUID,
+    req: UpdateCarSchema,
+):
+    try:
+        await car_service.update_car(UUID(user_context.user_id), car_id, req)
+    except CarNotFoundError:
+        raise CarNotFoundHttpError from None
+    except UserIsNotOwnerError:
+        raise UserIsNotOwnerHttpError from None
+
+
 @listings_router.delete('/{car_id}/', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_listing(
     car_service: Annotated[CarService, Depends(get_car_service)],
     user_context: Annotated[UserContext, Depends(get_current_user)],
     car_id: UUID,
-) -> str:
+):
     try:
         await car_service.delete_car(UUID(user_context.user_id), car_id)
     except CarNotFoundError:
         raise CarNotFoundHttpError from None
     except UserIsNotOwnerError:
         raise UserIsNotOwnerHttpError from None
-    return "OK"
