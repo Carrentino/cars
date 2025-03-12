@@ -140,3 +140,11 @@ class UpdateCarSchema(BaseModel):
     date_from: datetime | None = None
     date_to: datetime | None = None
     options: list[CarOption]
+
+
+class DeleteAttachmentElementSchema(BaseModel):
+    id: UUID
+
+
+class DeleteAttachmentsSchema(BaseModel):
+    attachments: list[DeleteAttachmentElementSchema]

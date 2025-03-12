@@ -25,6 +25,7 @@ from src.web.api.listings.schemas import (
     CarPaginatedResponse,
     RetrieveCarSchema,
     UpdateCarSchema,
+    DeleteAttachmentsSchema,
 )
 from src.web.depends.service import get_car_service, get_car_attachment_service
 
@@ -97,6 +98,16 @@ async def update_listing(
         raise CarNotFoundHttpError from None
     except UserIsNotOwnerError:
         raise UserIsNotOwnerHttpError from None
+
+
+@listings_router.put('/{car_id}/attachments', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_attachments(
+    car_attachment_service: Annotated[CarAttachmentService, Depends(get_car_attachment_service)],
+    user_context: Annotated[UserContext, Depends(get_current_user)],
+    req: DeleteAttachmentsSchema,
+    car_id: UUID,
+):
+    await car_attachment_service.delete_attachments(UUID(user_context.user_id), car_id, req)
 
 
 @listings_router.delete('/{car_id}/', status_code=status.HTTP_204_NO_CONTENT)
