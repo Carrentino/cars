@@ -6,6 +6,7 @@ from helpers.models.user import UserContext
 from src.errors.service import CarNotFoundError, UserIsNotOwnerError
 from src.repositories.car import CarRepository
 from src.repositories.car_attachment import CarAttachmentRepository
+from src.web.api.listings.schemas import DeleteAttachmentsSchema
 
 
 class CarAttachmentService:
@@ -26,3 +27,12 @@ class CarAttachmentService:
             raise UserIsNotOwnerError
         for attachment in attachments:
             await self.car_attachment_repository.create_attachment(car_id, attachment)
+
+    async def delete_attachments(self, user_id: UUID, car_id: UUID, req: DeleteAttachmentsSchema) -> None:
+        car = await self.car_repository.get(car_id)
+        if car is None:
+            raise CarNotFoundError
+        if car.owner_id != user_id:
+            raise UserIsNotOwnerError
+        ids = [item.id for item in req.attachments]
+        await self.car_attachment_repository.bulk_delete(car_id, ids)

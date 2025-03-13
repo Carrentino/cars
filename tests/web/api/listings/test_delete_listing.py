@@ -10,7 +10,7 @@ from tests.factories.car import CarFactory
 async def test_delete_listing_ok(user_context: UserContext, auth_client: AsyncClient) -> None:
     car = await CarFactory.create(owner_id=user_context.user_id)
     response = await auth_client.delete(f'/api/listings/{car.id}/')
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_204_NO_CONTENT
 
 
 async def test_delete_listing_nf(user_context: UserContext, auth_client: AsyncClient) -> None:

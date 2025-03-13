@@ -2,6 +2,7 @@ from uuid import UUID
 
 from fastapi import UploadFile
 from helpers.sqlalchemy.base_repo import ISqlAlchemyRepository
+from sqlalchemy import select, delete, and_
 
 from src.db.models.car_attachment import CarAttachment
 from src.settings import get_settings
@@ -18,3 +19,17 @@ class CarAttachmentRepository(ISqlAlchemyRepository[CarAttachment]):
             attachment=file_path,
         )
         return await self.create(attachment)
+
+    async def bulk_delete(self, car_id: UUID, obj_ids: list[UUID | int]) -> None:
+        if not obj_ids:
+            return
+
+        result = await self.session.execute(
+            select(self._model.id).where(and_(self._model.id.in_(obj_ids), self._model.car_id == car_id))
+        )
+        existing_ids = {row[0] for row in result.fetchall()}
+
+        if not existing_ids:
+            return
+
+        await self.session.execute(delete(self._model).where(self._model.id.in_(existing_ids)))
