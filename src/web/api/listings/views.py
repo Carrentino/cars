@@ -100,7 +100,7 @@ async def update_listing(
         raise UserIsNotOwnerHttpError from None
 
 
-@listings_router.put('/{car_id}/attachments', status_code=status.HTTP_204_NO_CONTENT)
+@listings_router.put('/{car_id}/attachments/', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_attachments(
     car_attachment_service: Annotated[CarAttachmentService, Depends(get_car_attachment_service)],
     user_context: Annotated[UserContext, Depends(get_current_user)],
