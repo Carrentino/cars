@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import ClassVar
 from uuid import UUID
 
@@ -134,4 +135,11 @@ class CarService:
         for k, v in update_data.items():
             if k in car.__dict__:
                 setattr(car, k, v)
+        await self.car_repository.update_object(car)
+
+    async def update_score(self, car_id: UUID, score: Decimal) -> None:
+        car = await self.car_repository.get(car_id)
+        if car is None:
+            raise CarNotFoundError
+        car.score = score
         await self.car_repository.update_object(car)
