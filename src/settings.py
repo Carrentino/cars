@@ -5,6 +5,26 @@ from pydantic import Field, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class KafkaSettings(BaseSettings):
+    bootstrap_servers: str
+    group_id: str
+    topic_car_score: str
+
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_file_encoding='utf-8',
+        str_strip_whitespace=True,
+        validate_default=True,
+        case_sensitive=False,
+        extra='ignore',
+        env_prefix='kafka_',
+    )
+
+    @property
+    def topics(self) -> list[str]:
+        return [v for k, v in self.__dict__.items() if k.startswith('topic_')]
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file='.env',
