@@ -14,6 +14,8 @@ async def test_create_listing(auth_client: AsyncClient) -> None:
         'price': 1,
         'latitude': 'test',
         'longitude': 'test',
+        'vin': 'test',
+        'license_plate': 'test',
         'options': [
             {
                 'title': 'test1',
@@ -34,6 +36,8 @@ async def test_create_listing_nf_carmodel(auth_client: AsyncClient) -> None:
         'price': 1,
         'latitude': 'test',
         'longitude': 'test',
+        'vin': 'test',
+        'license_plate': 'test',
         'options': [
             {
                 'title': 'test1',

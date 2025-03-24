@@ -1,10 +1,11 @@
 """empty message
 
-Revision ID: 650825f2dd54
+Revision ID: 373aa5bd2023
 Revises:
-Create Date: 2025-03-05 15:31:59.642761
+Create Date: 2025-03-24 13:12:20.130608
 
 """
+
 import fastapi_storages
 import sqlalchemy as sa
 from alembic import op
@@ -13,7 +14,7 @@ from fastapi_storages.integrations.sqlalchemy import ImageType
 from src.settings import get_settings
 
 # revision identifiers, used by Alembic.
-revision = '650825f2dd54'
+revision = '373aa5bd2023'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -27,32 +28,27 @@ def upgrade() -> None:
         'brands',
         sa.Column('title', sa.String(), nullable=False),
         sa.Column('id', sa.UUID(), nullable=False),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
-        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
+        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
         sa.PrimaryKeyConstraint('id', name=op.f('pk_brands')),
+        sa.UniqueConstraint('title', name=op.f('uq_brands_title')),
     )
     op.create_index(op.f('ix_brands_id'), 'brands', ['id'], unique=True)
     op.create_table(
         'car_options',
         sa.Column('title', sa.String(), nullable=False),
         sa.Column('id', sa.UUID(), nullable=False),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
-        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
+        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
         sa.PrimaryKeyConstraint('id', name=op.f('pk_car_options')),
     )
     op.create_index(op.f('ix_car_options_id'), 'car_options', ['id'], unique=True)
     op.create_table(
         'car_models',
         sa.Column('title', sa.String(), nullable=False),
-        sa.Column('brand_id', sa.UUID(), nullable=False),
-        sa.Column('drive', sa.Enum('RWD', 'FWD', 'AWD', name='carmodeldrive'),
-                  nullable=False),
-        sa.Column('gearbox', sa.Enum('MANUAL', 'AUTOMATIC', 'ROBOT', 'CVT',
-                                     name='carmodelgearbox'), nullable=False),
+        sa.Column('brand_id', sa.UUID(), nullable=True),
+        sa.Column('drive', sa.Enum('RWD', 'FWD', 'AWD', name='carmodeldrive'), nullable=False),
+        sa.Column('gearbox', sa.Enum('MANUAL', 'AUTOMATIC', 'ROBOT', 'CVT', name='carmodelgearbox'), nullable=False),
         sa.Column(
             'body',
             sa.Enum(
@@ -74,77 +70,77 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
-            'fuel', sa.Enum('AI_92', 'AI_95', 'AI_100', 'GAS', 'DIESEL', 'ELECTRO',
-                            name='carmodelfuel'), nullable=False
+            'fuel', sa.Enum('AI_92', 'AI_95', 'AI_100', 'GAS', 'DIESEL', 'ELECTRO', name='carmodelfuel'), nullable=False
         ),
         sa.Column('fuel_consumption', sa.Numeric(), nullable=False),
         sa.Column('hp', sa.Integer(), nullable=False),
         sa.Column('engine_capacity', sa.Numeric(), nullable=False),
         sa.Column('id', sa.UUID(), nullable=False),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
-        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
-        sa.ForeignKeyConstraint(['brand_id'], ['brands.id'],
-                                name=op.f('fk_car_models_brand_id_brands')),
+        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.ForeignKeyConstraint(
+            ['brand_id'], ['brands.id'], name=op.f('fk_car_models_brand_id_brands'), ondelete='RESTRICT'
+        ),
         sa.PrimaryKeyConstraint('id', name=op.f('pk_car_models')),
     )
+    op.create_index('idx_car_model_brand_id', 'car_models', ['brand_id'], unique=False)
+    op.create_index('idx_car_model_hp', 'car_models', ['hp'], unique=False)
+    op.create_index('idx_car_model_title', 'car_models', ['title'], unique=False)
     op.create_index(op.f('ix_car_models_id'), 'car_models', ['id'], unique=True)
     op.create_table(
         'cars',
         sa.Column('car_model_id', sa.UUID(), nullable=False),
         sa.Column('color', sa.String(), nullable=False),
         sa.Column('score', sa.Numeric(), nullable=False),
+        sa.Column('vin', sa.String(), nullable=False),
+        sa.Column('license_plate', sa.String(), nullable=False),
         sa.Column('price', sa.Integer(), nullable=False),
         sa.Column('owner_id', sa.Uuid(), nullable=False),
         sa.Column(
-            'status',
-            sa.Enum('NOT_VERIFIED', 'VERIFIED', 'ARCHIVED', 'BANNED', name='carstatus'),
-            nullable=False
+            'status', sa.Enum('NOT_VERIFIED', 'VERIFIED', 'ARCHIVED', 'BANNED', name='carstatus'), nullable=False
         ),
         sa.Column('latitude', sa.String(), nullable=False),
         sa.Column('longitude', sa.String(), nullable=False),
         sa.Column('date_from', sa.DateTime(), nullable=True),
         sa.Column('date_to', sa.DateTime(), nullable=True),
         sa.Column('id', sa.UUID(), nullable=False),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
-        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
-        sa.ForeignKeyConstraint(['car_model_id'], ['car_models.id'],
-                                name=op.f('fk_cars_car_model_id_car_models')),
+        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.CheckConstraint('price >= 0', name=op.f('ck_cars_chk_car_price')),
+        sa.CheckConstraint('score >= 0 AND score <= 5', name=op.f('ck_cars_chk_car_score')),
+        sa.ForeignKeyConstraint(
+            ['car_model_id'], ['car_models.id'], name=op.f('fk_cars_car_model_id_car_models'), ondelete='RESTRICT'
+        ),
         sa.PrimaryKeyConstraint('id', name=op.f('pk_cars')),
+        sa.UniqueConstraint('vin', 'license_plate', name='uq_car_vin_license'),
     )
+    op.create_index('idx_car_model', 'cars', ['car_model_id'], unique=False)
+    op.create_index('idx_owner_id', 'cars', ['owner_id'], unique=False)
+    op.create_index('idx_price', 'cars', ['price'], unique=False)
+    op.create_index('idx_status', 'cars', ['status'], unique=False)
     op.create_index(op.f('ix_cars_id'), 'cars', ['id'], unique=True)
     op.create_table(
         'car_attachments',
         sa.Column('car_id', sa.UUID(), nullable=False),
-        sa.Column('attachment',
-                  fastapi_storages.integrations.sqlalchemy.FileType(storage),
-                  nullable=False),
+        sa.Column('attachment', fastapi_storages.integrations.sqlalchemy.FileType(storage), nullable=False),
         sa.Column('id', sa.UUID(), nullable=False),
-        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
-        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'),
-                  nullable=False),
-        sa.ForeignKeyConstraint(['car_id'], ['cars.id'],
-                                name=op.f('fk_car_attachments_car_id_cars')),
+        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.ForeignKeyConstraint(
+            ['car_id'], ['cars.id'], name=op.f('fk_car_attachments_car_id_cars'), ondelete='CASCADE'
+        ),
         sa.PrimaryKeyConstraint('id', name=op.f('pk_car_attachments')),
     )
-    op.create_index(op.f('ix_car_attachments_id'), 'car_attachments', ['id'],
-                    unique=True)
+    op.create_index(op.f('ix_car_attachments_id'), 'car_attachments', ['id'], unique=True)
     op.create_table(
         'car_options_association',
         sa.Column('car_id', sa.UUID(), nullable=False),
         sa.Column('car_option_id', sa.UUID(), nullable=False),
-        sa.ForeignKeyConstraint(['car_id'], ['cars.id'],
-                                name=op.f('fk_car_options_association_car_id_cars')),
+        sa.ForeignKeyConstraint(['car_id'], ['cars.id'], name=op.f('fk_car_options_association_car_id_cars')),
         sa.ForeignKeyConstraint(
-            ['car_option_id'], ['car_options.id'],
-            name=op.f('fk_car_options_association_car_option_id_car_options')
+            ['car_option_id'], ['car_options.id'], name=op.f('fk_car_options_association_car_option_id_car_options')
         ),
-        sa.PrimaryKeyConstraint('car_id', 'car_option_id',
-                                name=op.f('pk_car_options_association')),
+        sa.PrimaryKeyConstraint('car_id', 'car_option_id', name=op.f('pk_car_options_association')),
     )
     # ### end Alembic commands ###
 
@@ -155,8 +151,15 @@ def downgrade() -> None:
     op.drop_index(op.f('ix_car_attachments_id'), table_name='car_attachments')
     op.drop_table('car_attachments')
     op.drop_index(op.f('ix_cars_id'), table_name='cars')
+    op.drop_index('idx_status', table_name='cars')
+    op.drop_index('idx_price', table_name='cars')
+    op.drop_index('idx_owner_id', table_name='cars')
+    op.drop_index('idx_car_model', table_name='cars')
     op.drop_table('cars')
     op.drop_index(op.f('ix_car_models_id'), table_name='car_models')
+    op.drop_index('idx_car_model_title', table_name='car_models')
+    op.drop_index('idx_car_model_hp', table_name='car_models')
+    op.drop_index('idx_car_model_brand_id', table_name='car_models')
     op.drop_table('car_models')
     op.drop_index(op.f('ix_car_options_id'), table_name='car_options')
     op.drop_table('car_options')

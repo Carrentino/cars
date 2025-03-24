@@ -18,6 +18,8 @@ class CreateCarReq(BaseModel):
     car_model_id: str
     color: str
     price: int
+    vin: str
+    license_plate: str
     latitude: str
     longitude: str
     date_from: datetime | None = None

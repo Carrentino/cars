@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from helpers.sqlalchemy.base_model import Base
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import Enum, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.enums.car_model import CarModelDrive, CarModelGearbox, CarModelBody, CarModelFuel
@@ -15,6 +15,11 @@ if TYPE_CHECKING:
 
 class CarModel(Base):
     __tablename__ = 'car_models'
+    __table_args__ = (
+        Index('idx_car_model_title', 'title'),
+        Index('idx_car_model_brand_id', 'brand_id'),
+        Index('idx_car_model_hp', 'hp'),
+    )
 
     title: Mapped[str]
     brand_id: Mapped[UUID] = mapped_column(ForeignKey('brands.id', ondelete='RESTRICT'), nullable=True)
