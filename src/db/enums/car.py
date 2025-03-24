@@ -2,7 +2,7 @@ from enum import StrEnum
 
 
 class CarStatus(StrEnum):
-    NOT_VERIFIED = 'NOT_VERIFIED'
-    VERIFIED = 'VERIFIED'
-    ARCHIVED = 'ARCHIVED'
-    BANNED = 'BANNED'
+    NOT_VERIFIED = 'Не верифицировано'
+    VERIFIED = 'Верифицировано'
+    ARCHIVED = 'Архивно'
+    BANNED = 'Заблокировано'
