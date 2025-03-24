@@ -13,6 +13,7 @@ from src.integrations.reviews import ReviewsClient
 from src.repositories.car import CarRepository
 from src.repositories.car_model import CarModelRepository
 from src.repositories.car_option import CarOptionRepository
+from src.utils import encrypt_data
 from src.web.api.listings.schemas import (
     CreateCarReq,
     CarFilters,
@@ -72,6 +73,8 @@ class CarService:
             color=req.color,
             price=req.price,
             owner_id=UUID(user.user_id),
+            vin=encrypt_data(req.vin),
+            license_plate=encrypt_data(req.license_plate),
             latitude=req.latitude,
             longitude=req.longitude,
             date_from=req.date_from,

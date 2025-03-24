@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     jwt_key: SecretStr = Field(default=SecretStr('551b8ef09b5e43ddcc45461f854a89b83b9277c6e578f750bf5a6bc3f06d8c08'))
     reviews_url: str = Field(default='https://carrentino.ru/reviews/api/cars')
     kafka: KafkaSettings = KafkaSettings()
+    crypto_key: bytes = Field(
+        default=b'\x17]~X#\r\xbb\xf3X\x88\x92}\x9aj\xa4\xcd\xe3\xdfZ\xe7\xdaF\xca\xbe\xfb\x9d\x9c\x08\x9eY2\xa6'
+    )
 
     @property
     def storage(self):
