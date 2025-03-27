@@ -1,4 +1,4 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import UploadFile
 from helpers.sqlalchemy.base_repo import ISqlAlchemyRepository
@@ -12,7 +12,8 @@ class CarAttachmentRepository(ISqlAlchemyRepository[CarAttachment]):
     _model = CarAttachment
 
     async def create_attachment(self, car_id: UUID, file: UploadFile) -> UUID:
-        file_path = get_settings().storage.save(file.file, file.filename)
+        new_file_name = f'{file.filename}-{uuid4()}'
+        file_path = get_settings().storage.write(file.file, new_file_name)
 
         attachment = CarAttachment(
             car_id=car_id,
