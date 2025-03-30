@@ -5,19 +5,18 @@ from helpers.sqlalchemy.base_repo import ISqlAlchemyRepository
 from sqlalchemy import select, delete, and_
 
 from src.db.models.car_attachment import CarAttachment
-from src.settings import get_settings
 
 
 class CarAttachmentRepository(ISqlAlchemyRepository[CarAttachment]):
     _model = CarAttachment
 
     async def create_attachment(self, car_id: UUID, file: UploadFile) -> UUID:
-        new_file_name = f'{file.filename}-{uuid4()}'
-        file_path = get_settings().storage.write(file.file, new_file_name)
-
+        file_name = file.filename.split(".")
+        new_file_name = f'{file_name[0]}-{uuid4()}.{file_name[-1]}'
+        file.filename = new_file_name
         attachment = CarAttachment(
             car_id=car_id,
-            attachment=file_path,
+            attachment=file,
         )
         return await self.create(attachment)
 
