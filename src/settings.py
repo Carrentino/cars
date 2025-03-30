@@ -28,11 +28,11 @@ class KafkaSettings(BaseSettings):
 
 class AWSSettings(BaseSettings):
     access_key: str = Field(default='admin')
-    secret_access_key: str = Field(default='password')
-    bucket: str = Field(default='bucket')
-    endpoint: str = Field(default='s3.amazonaws.com')
+    secret_access_key: str = Field(default='admin123')
+    bucket: str = Field(default='cars')
+    endpoint: str = Field(default='localhost:9000')
     default_acl: str = Field(default='public-read')
-    use_ssl: bool = Field(default=True)
+    use_ssl: bool = Field(default=False)
     model_config = SettingsConfigDict(
         env_file='.env',
         env_file_encoding='utf-8',
