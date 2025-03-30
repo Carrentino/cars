@@ -7,9 +7,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class KafkaSettings(BaseSettings):
-    bootstrap_servers: str
-    group_id: str
-    topic_car_score: str
+    bootstrap_servers: str = Field(default='localhost:9092')
+    group_id: str = Field(default='cars-group')
+    topic_car_score: str = Field('cars_score')
 
     model_config = SettingsConfigDict(
         env_file='.env',
