@@ -89,7 +89,7 @@ async def settings() -> Settings:
 
 @pytest.fixture()
 async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test/cars/") as ac:
         yield ac
 
 
@@ -107,7 +107,7 @@ async def auth_client(
 ) -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
         transport=ASGITransport(app=app),
-        base_url='http://test',
+        base_url='http://test/cars/',
         headers={
             'X-Auth-Token': encode_jwt(get_settings().jwt_key.get_secret_value(), user_context.model_dump(), "HS256")
         },
