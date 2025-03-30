@@ -68,9 +68,6 @@ jobs:
       contents: write
       packages: write
     steps:
-#      - name: Login to GitHub Container Registry
-#        run: echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
       - name: Deploy to Swarm
         uses: appleboy/ssh-action@master
         with:
@@ -86,7 +83,6 @@ jobs:
             --config-rm $OLD_CONFIG_NAME \
             --config-add source=$CONFIG_NAME,target=/app/.env \
             --image ghcr.io/carrentino/cars:${{ github.sha }} carrentino_cars
-            docker service update --image redis:latest carrentino_cars_redis
             docker config rm $OLD_CONFIG_NAME
   migrate:
     needs: deploy
