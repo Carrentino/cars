@@ -14,5 +14,5 @@ class Brand(Base):
 
     car_models: Mapped[list["CarModel"]] = relationship("CarModel", back_populates="brand")
 
-    def str(self):
+    def __repr__(self):
         return self.title

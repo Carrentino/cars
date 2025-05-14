@@ -47,5 +47,5 @@ class Car(Base):
     )
     attachments: Mapped[list["CarAttachment"]] = relationship("CarAttachment", back_populates="car")
 
-    def __str__(self):
-        return self.id
+    def __repr__(self):
+        return str(self.id)

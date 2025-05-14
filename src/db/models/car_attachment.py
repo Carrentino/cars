@@ -19,6 +19,9 @@ class CarAttachment(Base):
 
     car: Mapped["Car"] = relationship("Car", back_populates="attachments")
 
+    def __repr__(self):
+        return str(self.id)
+
 
 @event.listens_for(CarAttachment, 'before_delete')
 def delete_file(mapper, connection, target):  # noqa: ARG001

@@ -14,3 +14,6 @@ class CarOption(Base):
     title: Mapped[str]
 
     cars: Mapped[list["Car"]] = relationship("Car", secondary=car_options_association, back_populates="options")
+
+    def __repr__(self):
+        return self.title

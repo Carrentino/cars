@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import Any
 
+from aiokafka import AIOKafkaConsumer
+from aiokafka.util import create_task
 from fastapi import APIRouter, FastAPI
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import UJSONResponse
@@ -15,6 +17,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import PostgresDsn
 from sqladmin import Admin
 
+from src.kafka.listings.views import listing_listener
 from src.settings import get_settings
 from src.web.admin.brand import BrandAdmin
 from src.web.admin.car import CarAdmin
@@ -34,13 +37,13 @@ async def _lifespan(
     app: FastAPI,  # noqa
 ) -> AsyncGenerator[dict[str, Any], None]:
     client = make_db_client()
-    # kafka_consumer = AIOKafkaConsumer(
-    #     *get_settings().kafka.topics,
-    #     bootstrap_servers=get_settings().kafka.bootstrap_servers,
-    #     group_id=get_settings().kafka.group_id,
-    # )
-    # await kafka_consumer.start()
-    # create_task(listing_listener.listen(kafka_consumer))
+    kafka_consumer = AIOKafkaConsumer(
+        *get_settings().kafka.topics,
+        bootstrap_servers=get_settings().kafka.bootstrap_servers,
+        group_id=get_settings().kafka.group_id,
+    )
+    await kafka_consumer.start()
+    create_task(listing_listener.listen(kafka_consumer))
 
     yield {
         'db_client': client,
