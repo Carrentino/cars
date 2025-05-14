@@ -15,9 +15,15 @@ from helpers.api.middleware.unexpected_errors.middleware import ErrorsHandlerMid
 from helpers.sqlalchemy.client import SQLAlchemyClient
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import PostgresDsn
+from sqladmin import Admin
 
 from src.kafka.listings.views import listing_listener
 from src.settings import get_settings
+from src.web.admin.brand import BrandAdmin
+from src.web.admin.car import CarAdmin
+from src.web.admin.car_attachment import CarAttachmentAdmin
+from src.web.admin.car_model import CarModelAdmin
+from src.web.admin.car_option import CarOptionAdmin
 from src.web.api.listings.views import listings_router
 
 
@@ -64,6 +70,16 @@ def setup_prometheus(app: FastAPI) -> None:
     )
 
 
+def setup_admin(app, dsn):
+    engine = make_db_client(dsn)._engine
+    admin = Admin(app, engine, title="Cars Admin", base_url="/cars/admin")
+    admin.add_view(BrandAdmin)
+    admin.add_view(CarAdmin)
+    admin.add_view(CarAttachmentAdmin)
+    admin.add_view(CarModelAdmin)
+    admin.add_view(CarOptionAdmin)
+
+
 def make_app() -> FastAPI:
     app = FastAPI(
         title='cars',
@@ -78,6 +94,7 @@ def make_app() -> FastAPI:
     setup_prometheus(app)
     setup_api_routers(app)
     setup_middlewares(app)
+    setup_admin(app, get_settings().postgres_dsn)
 
     def custom_openapi():
         if app.openapi_schema:
@@ -85,7 +102,7 @@ def make_app() -> FastAPI:
         openapi_schema = get_openapi(
             title=app.title,
             version="1.0.0",
-            description="API documentation for orders service",
+            description="API documentation for cars service",
             routes=app.routes,
         )
         openapi_schema["components"]["securitySchemes"] = {

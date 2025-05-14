@@ -3,7 +3,6 @@ from urllib.parse import urljoin
 from uuid import UUID
 
 from helpers.clients.http_client import BaseApiClient
-from httpx import HTTPError
 
 from src.settings import get_settings
 
@@ -17,6 +16,6 @@ class ReviewsClient(BaseApiClient):
         response = await self.get(urljoin(self._base_url, f'{car_id}/?limit=3&sort=popularity'))
         try:
             response.raise_for_status()
-        except HTTPError:
+        except:  # noqa: E722
             return []
         return response.json()['data']
