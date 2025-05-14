@@ -13,3 +13,6 @@ class Brand(Base):
     title: Mapped[str] = mapped_column(unique=True)
 
     car_models: Mapped[list["CarModel"]] = relationship("CarModel", back_populates="brand")
+
+    def str(self):
+        return self.title

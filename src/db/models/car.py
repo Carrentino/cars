@@ -46,3 +46,6 @@ class Car(Base):
         "CarOption", secondary=car_options_association, back_populates="cars"
     )
     attachments: Mapped[list["CarAttachment"]] = relationship("CarAttachment", back_populates="car")
+
+    def __str__(self):
+        return self.id
