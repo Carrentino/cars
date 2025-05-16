@@ -17,7 +17,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import PostgresDsn
 from sqladmin import Admin
 from starlette.middleware import Middleware
-from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from src.kafka.listings.views import listing_listener
 from src.settings import get_settings
@@ -76,7 +76,11 @@ def setup_prometheus(app: FastAPI) -> None:
 def setup_admin(app, dsn):
     engine = make_db_client(dsn)._engine
     admin = Admin(
-        app, engine, title="Cars Admin", middlewares=[Middleware(HTTPSRedirectMiddleware)], base_url="/cars/admin"
+        app,
+        engine,
+        title="Cars Admin",
+        middlewares=[Middleware(ProxyHeadersMiddleware, trusted_hosts="*")],
+        base_url="/cars/admin",
     )
     admin.add_view(BrandAdmin)
     admin.add_view(CarAdmin)
