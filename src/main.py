@@ -14,6 +14,7 @@ def main() -> None:
         # reload=get_settings().reload,
         log_level=get_settings().log_level,
         factory=True,
+        forwarded_allow_ips='*',
     )
 
 
