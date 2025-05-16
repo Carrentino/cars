@@ -72,7 +72,7 @@ def setup_prometheus(app: FastAPI) -> None:
 
 def setup_admin(app, dsn):
     engine = make_db_client(dsn)._engine
-    admin = Admin(app, engine, title="Cars Admin", base_url="/cars/admin")
+    admin = Admin(app, engine, title="Cars Admin", base_url="https://carrentino.ru/cars/admin")
     admin.add_view(BrandAdmin)
     admin.add_view(CarAdmin)
     admin.add_view(CarAttachmentAdmin)
