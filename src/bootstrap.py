@@ -16,6 +16,7 @@ from helpers.sqlalchemy.client import SQLAlchemyClient
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import PostgresDsn
 from sqladmin import Admin
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 from src.kafka.listings.views import listing_listener
 from src.settings import get_settings
@@ -72,7 +73,7 @@ def setup_prometheus(app: FastAPI) -> None:
 
 def setup_admin(app, dsn):
     engine = make_db_client(dsn)._engine
-    admin = Admin(app, engine, title="Cars Admin", base_url="https://carrentino.ru/cars/admin")
+    admin = Admin(app, engine, title="Cars Admin", middlewares=[ProxyHeadersMiddleware], base_url="/cars/admin")
     admin.add_view(BrandAdmin)
     admin.add_view(CarAdmin)
     admin.add_view(CarAttachmentAdmin)
@@ -92,8 +93,8 @@ def make_app() -> FastAPI:
 
     setup_error_handlers(app, is_debug=get_settings().debug)
     setup_prometheus(app)
-    setup_api_routers(app)
     setup_middlewares(app)
+    setup_api_routers(app)
     setup_admin(app, get_settings().postgres_dsn)
 
     def custom_openapi():
