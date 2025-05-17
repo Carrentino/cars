@@ -1,6 +1,8 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi.params import Query
 from helpers.models.response import PaginatedResponse
 from helpers.utils import get_paginated_response
 
@@ -27,11 +29,12 @@ car_models_router = APIRouter()
 
 
 @car_models_router.get("/", response_model=CarModelPaginatedResponse)
-async def get_car_modelo(
+async def get_car_models(
     car_model_service: Annotated[CarModelService, Depends(get_car_model_service)],
+    brand_ids: list[UUID] = Query([]),
     start: str = "",
     limit: int = 30,
     offset: int = 0,
 ) -> PaginatedResponse:
-    res, count = await car_model_service.get_car_models(start, limit, offset)
+    res, count = await car_model_service.get_car_models(start, brand_ids, limit, offset)
     return await get_paginated_response(list(res), count, limit, offset)
