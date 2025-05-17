@@ -4,6 +4,7 @@ from fastapi import Depends
 from helpers.depends.db_session import get_db_session
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.repositories.brand import BrandRepository
 from src.repositories.car import CarRepository
 from src.repositories.car_attachment import CarAttachmentRepository
 from src.repositories.car_model import CarModelRepository
@@ -26,3 +27,7 @@ async def get_car_option_repository(session: Annotated[AsyncSession, Depends(get
 
 async def get_car_model_repository(session: Annotated[AsyncSession, Depends(get_db_session)]) -> CarModelRepository:
     return CarModelRepository(session)
+
+
+async def get_brand_repository(session: Annotated[AsyncSession, Depends(get_db_session)]) -> BrandRepository:
+    return BrandRepository(session)

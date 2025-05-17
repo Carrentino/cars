@@ -27,6 +27,7 @@ from src.web.admin.car_attachment import CarAttachmentAdmin
 from src.web.admin.car_model import CarModelAdmin
 from src.web.admin.car_option import CarOptionAdmin
 from src.web.api.listings.views import listings_router
+from src.web.api.readonly.views import brands_router, car_models_router
 
 
 @lru_cache
@@ -64,6 +65,8 @@ def setup_middlewares(app: FastAPI) -> None:
 def setup_api_routers(app: FastAPI) -> None:
     api_router = APIRouter(prefix='/cars/api')
     api_router.include_router(listings_router, prefix='/listings', tags=['listings'])
+    api_router.include_router(brands_router, prefix='/brands', tags=['brands'])
+    api_router.include_router(car_models_router, prefix='/car_models', tags=['car_models'])
     app.include_router(router=api_router)
 
 
