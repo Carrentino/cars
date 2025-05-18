@@ -2,13 +2,13 @@ from decimal import Decimal
 from typing import ClassVar
 from uuid import UUID
 
-from helpers.models.user import UserContext, UserStatus
+from helpers.models.user import UserContext
 
 from src.db.enums.car import CarStatus
 from src.db.models.brand import Brand
 from src.db.models.car import Car
 from src.db.models.car_model import CarModel
-from src.errors.service import UserIsNotVerifiedError, CarModelNotFoundError, CarNotFoundError, UserIsNotOwnerError
+from src.errors.service import CarModelNotFoundError, CarNotFoundError, UserIsNotOwnerError
 from src.integrations.reviews import ReviewsClient
 from src.repositories.car import CarRepository
 from src.repositories.car_model import CarModelRepository
@@ -62,8 +62,8 @@ class CarService:
         )
 
     async def create_car(self, user: UserContext, req: CreateCarReq) -> UUID:
-        if user.status == UserStatus.NOT_VERIFIED:
-            raise UserIsNotVerifiedError
+        # if user.status == UserStatus.NOT_VERIFIED:
+        #     raise UserIsNotVerifiedError
         car_model = await self.car_model_repository.get(UUID(req.car_model_id))
         if car_model is None:
             raise CarModelNotFoundError
