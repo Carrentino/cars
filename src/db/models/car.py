@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from uuid import UUID
 
 from helpers.sqlalchemy.base_model import Base
-from sqlalchemy import ForeignKey, Enum, UniqueConstraint, Index, CheckConstraint
+from sqlalchemy import ForeignKey, Enum, UniqueConstraint, Index, CheckConstraint, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.enums.car import CarStatus
@@ -38,8 +38,8 @@ class Car(Base):
     status: Mapped[CarStatus] = mapped_column(Enum(CarStatus), default=CarStatus.NOT_VERIFIED)
     latitude: Mapped[str]
     longitude: Mapped[str]
-    date_from: Mapped[datetime] = mapped_column(nullable=True)
-    date_to: Mapped[datetime] = mapped_column(nullable=True)
+    date_from: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    date_to: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
 
     car_model: Mapped["CarModel"] = relationship("CarModel", back_populates="cars", passive_deletes=True)
     options: Mapped[list["CarOption"]] = relationship(
