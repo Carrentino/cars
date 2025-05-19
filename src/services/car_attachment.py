@@ -23,7 +23,7 @@ class CarAttachmentService:
         car = await self.car_repository.get(car_id)
         if car is None:
             raise CarNotFoundError
-        if car.owner_id != user_context.user_id:
+        if car.owner_id != UUID(user_context.user_id):
             raise UserIsNotOwnerError
         for attachment in attachments:
             await self.car_attachment_repository.create_attachment(car_id, attachment)
