@@ -86,6 +86,14 @@ class CarModelSchema(BaseModel):
         from_attributes = True
 
 
+class CarAttachmentSchema(BaseModel):
+    id: UUID
+    attachment: str
+
+    class Config:
+        from_attributes = True
+
+
 class CarSchema(BaseModel):
     id: UUID
     color: str
@@ -100,6 +108,7 @@ class CarSchema(BaseModel):
     created_at: datetime
     updated_at: datetime
     car_model: CarModelSchema
+    attachments: list[CarAttachmentSchema]
 
     class Config:
         from_attributes = True
@@ -107,14 +116,6 @@ class CarSchema(BaseModel):
 
 class CarPaginatedResponse(PaginatedResponse):
     data: list[CarSchema]
-
-
-class CarAttachmentSchema(BaseModel):
-    id: UUID
-    attachment: str
-
-    class Config:
-        from_attributes = True
 
 
 class CarOptionSchema(BaseModel):
@@ -126,7 +127,6 @@ class CarOptionSchema(BaseModel):
 
 
 class RetrieveCarSchema(CarSchema):
-    attachments: list[CarAttachmentSchema]
     options: list[CarOptionSchema]
     reviews: list
 

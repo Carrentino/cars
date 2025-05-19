@@ -15,7 +15,9 @@ class CarRepository(ISqlAlchemyRepository[Car]):
     async def get_cars(
         self, conditions: list[BinaryExpression], limit: int = 30, offset: int = 0
     ) -> tuple[Sequence[Car], int]:
-        base_query = select(Car).options(joinedload(Car.car_model).joinedload(CarModel.brand))
+        base_query = select(Car).options(
+            joinedload(Car.car_model).joinedload(CarModel.brand), selectinload(Car.attachments)
+        )
         if conditions:
             base_query = base_query.where(and_(*conditions))
 
