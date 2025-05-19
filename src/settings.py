@@ -98,17 +98,21 @@ class Settings(BaseSettings):
     crypto_key: bytes = Field(
         default=b'\x17]~X#\r\xbb\xf3X\x88\x92}\x9aj\xa4\xcd\xe3\xdfZ\xe7\xdaF\xca\xbe\xfb\x9d\x9c\x08\x9eY2\xa6'
     )
+    aws_access_key_id: str = Field(default='minio', validation_alias="AWS_ACCESS_KEY_ID")
+    aws_secret_access_key: str = Field(default='miniominio', validation_alias="AWS_SECRET_ACCESS_KEY")
+    aws_s3_bucket_name: str = Field(default='local-bucket', validation_alias="S3_BUCKET_NAME")
+    aws_s3_endpoint_url: str = Field(default='localhost:9000/', validation_alias="S3_ENDPOINT_URL")
 
     @property
     def storage(self):
-        return AssetS3Storage(
-            aws_access_key=self.aws.access_key,
-            aws_secret_access_key=self.aws.secret_access_key,
-            aws_bucket=self.aws.bucket,
-            aws_endpoint=self.aws.endpoint,
-            aws_default_acl=self.aws.default_acl,
-            aws_use_ssl=self.aws.use_ssl,
-        )
+        class S3CustomStorage(S3Storage):
+            AWS_ACCESS_KEY_ID = self.aws.access_key
+            AWS_SECRET_ACCESS_KEY = self.aws.secret_access_key
+            AWS_S3_BUCKET_NAME = self.aws.bucket
+            AWS_S3_ENDPOINT_URL = self.aws.endpoint
+            AWS_S3_USE_SSL = False
+
+        return S3CustomStorage()
 
 
 @lru_cache
