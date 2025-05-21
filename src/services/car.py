@@ -50,9 +50,9 @@ class CarService:
         car = await self.car_repository.get_car_by_id(car_id)
         if car is None:
             raise CarNotFoundError
-        if (user is None and car.status != CarStatus.VERIFIED) or (
-            user is not None and user.user_id != car.owner_id and car.status != CarStatus.VERIFIED
-        ):
+        if user is None and car.status != CarStatus.VERIFIED:
+            raise CarNotFoundError
+        if user is not None and UUID(user.user_id) != car.owner_id and car.status != CarStatus.VERIFIED:
             raise CarNotFoundError
         reviews = await self.reviews_client.get_reviews(car_id, token)
         car.reviews = reviews
