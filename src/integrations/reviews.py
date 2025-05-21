@@ -1,5 +1,4 @@
 from typing import Any
-from urllib.parse import urljoin
 from uuid import UUID
 
 from helpers.clients.http_client import BaseApiClient
@@ -13,9 +12,9 @@ class ReviewsClient(BaseApiClient):
     async def get_reviews(self, car_id: UUID, token: str | None = None) -> list[Any] | Any:
         if token is not None:
             self.headers['X-Auth-Token'] = token
-        response = await self.get(urljoin(self._base_url, f'{car_id}/?limit=3&sort=popularity'))
         try:
+            response = await self.get(self._base_url.join(f'{car_id}/?limit=3&sort=popularity'))
             response.raise_for_status()
         except:  # noqa: E722
-            return []
+            return ["Пинать Олега чтобы поднял сервис отзывов!!!"]
         return response.json()['data']
